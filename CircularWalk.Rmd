@@ -1,0 +1,52 @@
+---
+title: "Sampling random walk."
+author: "Jeff Grayum"
+date: "11/24/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+
+20 people in the circle. Food can be passed either left or right (1, -1)
+
+0 is you, 1 is person to right, -1 is person to left.
+```{r}
+sample(c(1, -1), 20, replace = TRUE)
+
+cumsum(sample(c(1, -1), 100, replace = TRUE)) %% 20
+```
+
+
+Let's write a function to simulate a circular walk!
+```{r}
+circular_walk <- function(n){
+  cumsum(sample(c(1, -1), n, replace = TRUE)) %% 20
+}
+
+sim <- crossing(trial = 1:20000,
+         step = 1:100) %>%
+  mutate(direction = sample(c(1, -1), n(), replace = TRUE)) %>%
+  group_by(trial) %>%
+  mutate(seat = cumsum(direction) %% 20) %>%
+  ungroup() %>%
+  distinct(trial, seat, .keep_all = TRUE) %>%
+  filter(seat != 0) 
+
+sim %>%
+  group_by(seat) %>%
+  summarise(avg_step = mean(step)) %>%
+  ggplot(aes(seat, avg_step)) +
+  geom_line() + 
+  
+ 
+```
+
