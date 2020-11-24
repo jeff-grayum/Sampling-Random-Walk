@@ -13,6 +13,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(tidyverse)
+library(ggthemes)
+library(extrafont)
+library(tvthemes)
 ```
 
 
@@ -45,7 +48,15 @@ sim %>%
   group_by(seat) %>%
   summarise(avg_step = mean(step)) %>%
   ggplot(aes(seat, avg_step)) +
-  geom_line() + 
+  geom_line(size = 1.1) + 
+  theme_simpsons() +
+  labs(title = "Average number steps for cranberry sauce to reach each seat at the table",
+       subtitle = "Starting at seat zero",
+       x = "Seat number",
+       y = "Avg number of steps",
+       caption = "One step = passing cranberry once randomly to the right or left") 
+  
+  
   
  
 ```
