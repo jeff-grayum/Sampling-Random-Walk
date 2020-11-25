@@ -16,6 +16,7 @@ library(tidyverse)
 library(ggthemes)
 library(extrafont)
 library(tvthemes)
+library(scales)
 ```
 
 
@@ -34,9 +35,11 @@ Let's write a function to simulate a circular walk!
 circular_walk <- function(n){
   cumsum(sample(c(1, -1), n, replace = TRUE)) %% 20
 }
+```
 
-sim <- crossing(trial = 1:20000,
-         step = 1:100) %>%
+```{r}
+sim <- crossing(trial = 1:100000,
+         step = 1:1000) %>%
   mutate(direction = sample(c(1, -1), n(), replace = TRUE)) %>%
   group_by(trial) %>%
   mutate(seat = cumsum(direction) %% 20) %>%
@@ -50,11 +53,40 @@ sim %>%
   ggplot(aes(seat, avg_step)) +
   geom_line(size = 1.1) + 
   theme_simpsons() +
-  labs(title = "Average number steps for cranberry sauce to reach each seat at the table",
-       subtitle = "Starting at seat zero",
+  labs(title = "Average number of steps for cranberry sauce to reach each seat at the table",
+       subtitle = "Starting at seat zero (me)",
        x = "Seat number",
        y = "Avg number of steps",
-       caption = "One step = passing cranberry once randomly to the right or left") 
+       caption = "One step = passing cranberry once randomly to the right or left") +
+  expand_limits(y = 0)
+
+```
+
+```{r}  
+by_seat <- sim %>%
+  group_by(trial) %>%
+  mutate(is_last = row_number() == 19) %>%
+  group_by(seat) %>%
+  summarise(avg_step = mean(step),
+            pct_last = mean(is_last)) 
+
+by_seat %>%
+  ggplot(aes(seat, pct_last)) +
+  geom_line() + 
+  geom_hline(yintercept = 1/19, lty = 2, color = "pink") +
+  theme_simpsons() +
+  labs(title = "On average, which seat at the table recieves the cranberry sauce last?",
+       subtitle = "Starting at seat zero (me)",
+       x = "Seat number",
+       y = "Percent of the time x seat is last",
+       caption = "One step = passing cranberry once randomly to the right or left") +
+  expand_limits(y = 0) +
+  scale_y_continuous(labels = percent)
+
+
+
+```
+  
   
   
   
